@@ -1,0 +1,33 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: tkg-cc-1
+  namespace: namespace-1
+spec:
+  clusterNetwork:
+    services:
+      cidrBlocks: ["192.168.192.0/18"]
+    pods:
+      cidrBlocks: ["192.168.128.0/18"]
+    serviceDomain: "managedcluster.local"
+  topology:
+    class: tanzukubernetescluster
+    version: v1.26.5---vmware.2-fips.1-tkg.1
+    controlPlane:
+      metadata:
+        annotations:
+          run.tanzu.vmware.com/resolve-os-image: os-name=ubuntu
+      replicas: 1
+    workers:
+      # node pools
+      machineDeployments:
+        - class: node-pool
+          name: node-pool-1
+            # failureDomain: zone1
+          replicas: 2
+    variables:
+      - name: vmClass
+        value: best-effort-small
+      # default storageclass for control plane and node pool
+      - name: storageClass
+        value: k8s-storage-policy

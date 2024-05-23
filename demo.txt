@@ -1,0 +1,75 @@
+Review k8s-storage-policy
+Workload management -> namespaces -> Create new namespace namespace-1
+Add Storage to namespace-1 k8s-storage-policy
+Add all VM Classes to namespace-1
+Add VM Images Content Library to namespace-1
+Open link to CLI tools and download CLI Plugin Windows
+Extract vsphere-plugin.zip to C:\Windows
+vSphere Client -> Workload Management -> Services -> Click on Discover and download available Supervisor Services here link
+Scroll down to Harbor and download latest version Harbor v2.8.2 and sample values.yaml for v2.8.2
+Scroll down to Contour and download latest version Contour v1.24.4 and sample values.yaml for all versions.
+Move files to C:\VCF-Demo-main (replace existing if any, except harbor-data-values.yaml)
+vSphere Client -> Workload Management -> Services -> Click on Add Service
+Upload contour.yaml and click Finish
+Once successfully registered, click on Actions in Contour tile and Install on Supervisors
+Check mgmt-cluster-01 and copy in the content of contour-data-values.yaml into YAML Service Config field. Remove any spaces from the end. 
+Click into svc-contour-domain namespace -> Compute and wait for all Deployments and Replica Sets to be Ready
+Click on Network tab -> Services, and note down the External IP of envoy
+Add Envoy IP into DNS for harbor.vmw.lab
+Modify harbor data values.yaml
+vSphere Client -> Workload Management -> Services -> Select correct vCenter -> Click on Add Service
+Upload harbor.yaml and click Finish
+Once successfully registered, click on Actions in Contour tile and Install on Supervisors
+Check mgmt-cluster-01 and copy in the content of harbor-data-values.yaml into YAML Service Config field. Remove any spaces from the end. 
+Click into svc-harbor-domain namespace -> Compute and wait for all Deployments and Replica Sets to be Ready
+Open browser and go to https://harbor.vmw.lab (ignore cert warning)
+Login using admin Harbor12345
+Go to Library project and download Registry certificate
+Create New Project called 3ta and click ok
+Open Administrator Command Prompt and cd C:\VCF-Demo-main
+kubectl vsphere login --server 192.168.30.34 --vsphere-username administrator@vsphere.local
+kubectl config use-context namespace-1
+kubectl get vmi
+Replace imageName in cli-vm.yaml (if different)
+kubectl apply -f cli-vm.yaml
+kubectl get vm -o wide (verify IP is assigned)
+kubectl get service
+ssh devops@serviceIP Devops123
+Login to CLI VM and run following commands:
+imgpkg copy -i jswolf059/developer-utilities-backend:latest --to-tar=/tmp/backend.tar
+imgpkg copy -i jswolf059/developer-utilities-frontend:latest --to-tar=/tmp/frontend.tar
+sudo mkdir -p /etc/docker/certs.d/harbor.vmw.lab/
+sudo vi /etc/docker/certs.d/harbor.vmw.lab/ca.crt and copy in the ca.crt you downloaded from Harbor
+sudo docker login harbor.vmw.lab (admin Harbor12345)
+sudo imgpkg copy --tar /tmp/backend.tar --to-repo=harbor.vmw.lab/3ta/backend --registry-ca-cert-path /etc/docker/certs.d/harbor.vmw.lab/ca.crt
+sudo imgpkg copy --tar /tmp/frontend.tar --to-repo=harbor.vmw.lab/3ta/frontend --registry-ca-cert-path /etc/docker/certs.d/harbor.vmw.lab/ca.crt
+Verify you can see frontend and backend artifacts in harbor 3ta project
+Open Administrator Command Prompt and cd C:\VCF-Demo-main
+kubectl vsphere login --server 192.168.30.34 --vsphere-username administrator@vsphere.local
+kubectl config use-context namespace-1
+kubectl apply -f mysql-vm.yaml
+kubectl get service
+echo -n “mysqlserviceIP” |base64 -w 0 and add to backend.yaml
+kubectl apply -f tkg-cc-1.yaml
+kubectl vsphere login --server 192.168.30.34 --tanzu-kubernetes-cluster-name tkg-cc-1 --tanzu-kubernetes-cluster-namespace namespace-1 --vsphere-username administrator@vsphere.local
+kubectl get nodes
+kubectl apply -f adminer.yaml
+kubectl apply -f nginx.yaml
+kubectl get service 
+Open External IP of nginx 
+kubectl create ns app-ns
+kubectl label --overwrite ns --all pod-security.kubernetes.io/enforce=privileged
+kubectl create secret docker-registry docker-hub-creds --docker-server=harbor.vmw.lab --docker-username=admin --docker-password=Harbor12345 -n app-ns
+kubectl apply -f backend-app.yaml -n app-ns
+kubectl get pod -n app-ns
+kubectl get service -n app-ns
+curl -X GET BackendServiceIP:5000/api/index
+echo -n “BackendServiceIP:5000” |base64 -w 0
+Paste into frontend.yaml
+kubectl apply -f frontend-app.yaml -n app-ns
+kubectl get pod -n app-ns
+kubectl get service -n app-ns
+Browse to http://FrontentExternalIP:5000
+Click on Register and create a new user, for example demo/demo
+Log in with the new user demo/demo
+Write New Request

@@ -1,0 +1,19 @@
+
+guiUnattended:
+  autoLogon: true
+  autoLogonCount: 3
+  password:
+    name: test-windows-inlined-sysprep
+    key: pwKey
+identification:
+  joinWorkgroup: vmware
+guiRunOnce:
+  commands:
+  - "dir C:"
+  - "echo Hello"
+  - 'C:\sysprep\guestcustutil.exe restoreMountedDevices'
+  - 'C:\sysprep\guestcustutil.exe flagComplete'
+  - 'C:\sysprep\guestcustutil.exe deleteContainingFolder'
+userData:
+  fullName: "Administrator"
+  orgName: "VMware"

@@ -1,0 +1,3 @@
+      # Install Packer plugins
+      - packer plugins install github.com/hashicorp/vsphere
+      - packer plugins install github.com/hashicorp/ansible

@@ -1,0 +1,14 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineService
+metadata:
+  name: cli-vm-lb-hapt
+  namespace: namespace-1
+spec:
+  selector:
+    cli-vm-lb-hapt: vm-lb-selector
+  type: LoadBalancer
+  ports:
+    - name: ssh
+      protocol: TCP
+      port: 22
+      targetPort: 22

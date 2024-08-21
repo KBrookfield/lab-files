@@ -1,0 +1,65 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  labels:
+    vm.name: cli-vm
+  name: cli-vm
+  namespace: namespace-1
+spec:
+  imageName: vmi-e1f344eb9636db690
+  className: best-effort-small
+  powerState: poweredOn
+  storageClass: k8s-storage-policy
+  networkInterfaces:
+  - networkName: ""
+    networkType: nsx-t
+  vmMetadata:
+      secretName: cli-vm-cm
+      transport: CloudInit
+---
+apiVersion: v1
+kind: Secret
+metadata:
+    name: cli-vm-cm
+    namespace: namespace-1
+stringData:
+  user-data: |
+    #cloud-config
+    ssh_pwauth: true
+    groups:
+    - admingroup: [root,sys]
+    users:
+      - name: devops
+        gecos: Dev S. Ops
+        lock_passwd: false
+        passwd: $6$n/zJuy.x/O0oRKHp$sRK0wNmKkTRX26poRTVPIsXiz4u9SvVR2euzNV7ZXR9DTD.L3XgH0TgZZyxiGE1Mw.B6D8YcqCrLpwDCoRnBQ.
+        # Password set to DevOps123
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        groups: sudo, users, admin, docker
+        shell: /bin/bash
+    runcmd:
+      # Update packages
+      - sudo apt-get update && sudo apt-get upgrade
+      # Install tools
+      - sudo apt install -y ca-certificates curl apt-transport-https software-properties-common docker-ce docker-ce-cli containerd.io wget gnupg net-tools zip unzip jq zsh bat bash-completion whois 
+      # Install Docker engine
+      - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      - systemctl enable docker
+      - systemctl start docker
+
+---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachineService
+metadata:
+  name: cli-vm-lb
+  namespace: namespace-1
+spec:
+  ports:
+  - name: ssh
+    port: 22
+    protocol: TCP
+    targetPort: 22
+  selector:
+    vm.name: cli-vm
+  type: LoadBalancer

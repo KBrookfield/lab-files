@@ -1,0 +1,12 @@
+---
+- name: Test connection to hosts
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Print hostname
+      command: hostname
+      register: hostname_output
+
+    - name: Display hostname
+      debug:
+        msg: "The hostname of this machine is {{ hostname_output.stdout }}"

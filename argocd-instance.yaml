@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: argocd-instance
+  labels:
+    example: basic
+spec:
+  nodePlacement:
+    nodeSelector:
+      kubernetes.io/os: CRX
+  server:
+    service:
+      type: LoadBalancer
+  redis:
+    image: dockerhub.artifactory.eng.vmware.com/redis
+    resources: {}
+    version: "sha256:8061ca607db2a0c80010aeb5fc9bed0253448bc68711eaa14253a392f6c48280"
+    disableTLSVerification: false
+    autotls: ""

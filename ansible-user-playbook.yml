@@ -1,0 +1,46 @@
+---
+- name: Setup ansible user
+  hosts: all
+  become: yes
+  tasks:
+    - name: Add ansible group
+      group:
+        name: ansible
+        state: present
+
+    - name: Add ansible user
+      user:
+        name: ansible
+        group: ansible
+        groups: sudo
+        shell: /bin/bash
+        create_home: yes
+        state: present
+
+    - name: Create .ssh directory
+      file:
+        path: /home/ansible/.ssh
+        state: directory
+        owner: ansible
+        group: ansible
+        mode: '0700'
+
+    - name: Add SSH public key for ansible user
+      copy:
+        dest: /home/ansible/.ssh/authorized_keys
+        content: |
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC3BSlw1zfncWw+/KlIvNd6pCHGNObAvV5tmwlg3DloslIQJdlYIVgWMivHDBEd60787cmcpfmm2M/jgLRFyG97HowOcTgxOMj+gXJeBA7TEFU66EbthXHTNZTowk5DQu40AnQSEZHvYwjK9HvY0njbwZ6MkojkciZZ5Ia7H43HVAhqPVEyLIaN2Z6aJ6tWD0ZltVKC8YI7WWDFZo2dVw5Cb0qJkkWeyWEscpI/8RGfYo5ZUrUYiJo8B6gXGkOskieSMKS60vLKYSThrtBMv94ySFEUarO1MuU1+CkqKUcbLkQwjap0l3KVIgTnMit1jGlsXkY9xhANdzyVkOz4FUXwC9t18jkTsc7kiV+pDQNzNvPefMzKJBM2k2z8N/dbXD3s42Hpa7xdab4GGd8gzaGUjKEVe9rxp6ITk128EnPufhgaQSOpQL2slWfWZPh8TRIyylhNYjP95uIjKIeyHElScB9qFLKGn6ItzQ38K82aCLEioCugnViOteMiw93dGZUqzsAbja5lnV2TVqcfXgk1du/6BSHuaLgctCvdoIBywHB41airsFE16PhbhM/GXNWh5HyuawnFiFyrLs6rLRIlg2iOQOGVokgLUegnXUL1Y8WUJgDGFEt4HLFJJu13V+V3tNCdJL4cIhfMFOpAdfz7UHKVy/3xzjHupfzmHm0YZQ== ansible
+        owner: ansible
+        group: ansible
+        mode: '0600'
+
+    - name: Generate random password
+      command: openssl rand -base64 14
+      register: generated_password
+      no_log: true
+
+    - name: Set password for ansible user
+      user:
+        name: ansible
+        password: "{{ generated_password.stdout | password_hash('sha512') }}"
+        update_password: always

@@ -1,0 +1,29 @@
+---
+- name: Configure NTP on Ubuntu
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure NTP package is installed
+      ansible.builtin.apt:
+        update_cache: true
+        name: ntp
+        state: present
+
+    - name: Configure NTP
+      ansible.builtin.copy:
+        content: |
+          driftfile /var/lib/ntp/ntp.drift
+
+          # Specify one or more NTP servers.
+          server time.vmware.com
+
+          # Use Ubuntu's ntp server as a fallback.
+          server ntp.ubuntu.com
+        dest: /etc/ntp.conf
+      notify: restart ntp
+
+  handlers:
+    - name: restart ntp
+      ansible.builtin.service:
+        name: ntp
+        state: restarted

@@ -1,0 +1,20 @@
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: cli-vm
+  namespace: namespace-1
+  labels:
+    vm-selector: cli-vm
+    cli-vm-lb-hapt: vm-lb-selector
+spec:
+  className: best-effort-small
+  imageName: vmi-06f1807c69d0c34e6
+  storageClass: k8s-storage-policy
+  powerState: poweredOn
+  volumes:
+    - name: cli-vm-pvc-0
+      persistentVolumeClaim:
+        claimName: cli-vm-pvc-0
+  vmMetadata:
+    secretName: cli-vm-bootstrap-secret
+    transport: CloudInit

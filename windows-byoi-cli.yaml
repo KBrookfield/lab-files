@@ -43,7 +43,7 @@ stringData:
       # Install tools
       - sudo apt install -y ca-certificates curl wget gnupg net-tools zip unzip jq make zsh bat bash-completion whois 
       # Install kubectl
-      - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      - curl curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       - sudo echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
       - sudo apt-get update && sudo apt-get install -y kubectl
       # Install kubectl-vsphere plugin

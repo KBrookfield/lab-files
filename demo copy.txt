@@ -27,7 +27,7 @@ Login using admin Harbor12345
 Go to Library project and download Registry certificate
 Create New Project called 3ta and click ok
 Open Administrator Command Prompt and cd C:\VCF-Demo-main
- 
+kubectl vsphere login --server 10.202.113.2 --vsphere-username administrator@vsphere.local
 kubectl config use-context namespace-1
 kubectl get vmi
 Replace imageName in cli-vm.yaml (if different)
@@ -51,7 +51,7 @@ kubectl apply -f mysql-vm.yaml
 kubectl get service
 echo -n “mysqlserviceIP” |base64 -w 0 and add to backend.yaml
 kubectl apply -f tkg-cc-1.yaml
-kubectl vsphere login --server 192.168.30.34 --tanzu-kubernetes-cluster-name vks-windows-01 --tanzu-kubernetes-cluster-namespace namespace-1 --vsphere-username administrator@vsphere.local
+kubectl vsphere login --server 192.168.30.34 --tanzu-kubernetes-cluster-name tkg-cc-1 --tanzu-kubernetes-cluster-namespace namespace-1 --vsphere-username administrator@vsphere.local
 kubectl get nodes
 kubectl apply -f adminer.yaml
 kubectl apply -f nginx.yaml
